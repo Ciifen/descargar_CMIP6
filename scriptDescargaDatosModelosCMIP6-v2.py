@@ -119,6 +119,14 @@ else:
     # Inicia el proceso de descarga de los datos como tal
 
     # Se define la página de la cual se buscarán y descargarán los datos
+    ## Si existe un tipo de Error con el código se recomienda usar otro servidor
+    ## Recomendaciones Según ESGF: 
+    ## 'https://esgf-node.llnl.gov/esg-search' -------> PCMDI/LLNL (USA)
+    ## ´https://esgf-node.ipsl.upmc.fr/esg-search' ---> IPSL (Francia)
+    ## 'https://esgf-data.dkrz.de/esg-search' --------> DKRZ (Alemania)
+    ## 'https://esgf-ui.ceda.ac.uk/esg-search' -------> CEDA (Reino Unido)
+    ## 'https://esgf.nci.org.au/esg-search' ----------> NCI Australia (Australia)
+
     conn = SearchConnection('https://esgf-node.llnl.gov/esg-search', distrib=True)
 
     # Se definen los parámetros de la consulta a realizar para encontrar 
