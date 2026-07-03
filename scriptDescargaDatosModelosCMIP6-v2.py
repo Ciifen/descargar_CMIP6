@@ -127,7 +127,7 @@ else:
     ## 'https://esgf-ui.ceda.ac.uk/esg-search' -------> CEDA (Reino Unido)
     ## 'https://esgf.nci.org.au/esg-search' ----------> NCI Australia (Australia)
 
-    conn = SearchConnection('https://esgf-node.llnl.gov/esg-search', distrib=True)
+    conn = SearchConnection('https://esgf-data.dkrz.de/esg-search', distrib=True)
 
     # Se definen los parámetros de la consulta a realizar para encontrar 
     # los archivos disponibles para el modelo, variable climática, escenario 
