@@ -1,3 +1,10 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Jul  3 16:59:19 2026
+
+@author: USER
+"""
+
 '''
 El siguiente código fuente forma parte de los desarrollos realizados
 por el "Centro Internacional para la Investigación del Fenómeno de El Niño
@@ -116,34 +123,48 @@ if( (lonmin>=lonmax) or (latmin>=latmax) ):
     exit(1)
 else:
     
-    # Inicia el proceso de descarga de los datos como tal
-
+    # Inicia el proceso de descarga de los datos como tal 
     # Se define la página de la cual se buscarán y descargarán los datos
-    ## Si existe un tipo de Error con el código se recomienda usar otro servidor
-    ## Recomendaciones Según ESGF: 
-    ## 'https://esgf-node.llnl.gov/esg-search' -------> PCMDI/LLNL (USA)
-    ## ´https://esgf-node.ipsl.upmc.fr/esg-search' ---> IPSL (Francia)
-    ## 'https://esgf-data.dkrz.de/esg-search' --------> DKRZ (Alemania)
-    ## 'https://esgf-ui.ceda.ac.uk/esg-search' -------> CEDA (Reino Unido)
-    ## 'https://esgf.nci.org.au/esg-search' ----------> NCI Australia (Australia)
-
-    conn = SearchConnection('https://esgf-data.dkrz.de/esg-search', distrib=True)
-
-    # Se definen los parámetros de la consulta a realizar para encontrar 
-    # los archivos disponibles para el modelo, variable climática, escenario 
-    # y frecuencia temporal definidos
-    ctx = conn.new_context(
-        project='CMIP6',
-        source_id=modelo,
-        experiment_id=escenario,
-        variable=varclim,
-        frequency=frecuencia,
-        variant_label='r1i1p1f1',
-        data_node='esgf.ceda.ac.uk',
-        facets='*')
-    ctx.hit_count
-
-    # Se realiza la consulta como tal
+    #https://esgf.github.io/nodes.html
+    # NOTA: esta lista refleja los nodos que respondieron correctamente
+    # en las pruebas más recientes (DKRZ, NCI y CEDA). La disponibilidad
+    # de los nodos ESGF puede cambiar con el tiempo.
+    nodos_esgf = [
+        'https://esgf-data.dkrz.de/esg-search',
+        'https://esgf.nci.org.au/esg-search',
+        'https://esgf.ceda.ac.uk/esg-search',
+    ]
+    
+    ctx = None
+    
+    for nodo in nodos_esgf:
+        try:
+            print("Intentando conectar al nodo: " + nodo)
+            conn_intento = SearchConnection(nodo, distrib=True)
+            ctx_intento = conn_intento.new_context(
+                project='CMIP6',
+                source_id=modelo,
+                experiment_id=escenario,
+                variable=varclim,
+                frequency=frecuencia,
+                variant_label='r1i1p1f1',
+                #data_node='esgf.ceda.ac.uk',
+                facets='*')
+            ctx_intento.hit_count  # esta línea dispara la consulta real al servidor
+    
+            ctx = ctx_intento
+            print("Conexión exitosa con: " + nodo)
+            break
+    
+        except Exception as e:
+            print("El nodo " + nodo + " no respondió correctamente (" + type(e).__name__ + "): " + str(e))
+            continue
+    
+    if ctx is None:
+        print("No fue posible conectar con ningún nodo ESGF de la lista.")
+        print("Los servidores del CMIP6 suelen fallar en ocasiones; por favor intente más tarde (dar un día de espera al menos).")
+        sys.exit(1)
+    
     result = ctx.search()[0]
 
     # Y se obtiene el listado de archivos disponibles
