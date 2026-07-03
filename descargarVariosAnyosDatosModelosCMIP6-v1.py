@@ -82,6 +82,9 @@ import os
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import cartopy.feature as cf
+import sys
+import subprocess
+from pathlib import Path
 # ---FIN LIBRERÍAS NECESARIAS---
 
 
@@ -206,8 +209,27 @@ else:
         plt.title('Nombre Zona: '+nombrezona+' (Longitud: '+str(abs(lonmin))+zonalonmin+' a '+str(abs(lonmax))+zonalonmax+', Latitud: '+str(abs(latmin))+zonalatmin+' a '+str(abs(latmax))+zonalatmax+')\n')
         plt.annotate('(Para continuar el proceso cierre esta ventana)', (0,0), (-20, -20), xycoords='axes fraction', textcoords='offset points', va='top')
         plt.show()
-    
+        
+        try:
+            script_dir = Path(__file__).resolve().parent
+        except NameError:
+            script_dir = Path.cwd()
+        
+        script_v2 = script_dir / "scriptDescargaDatosModelosCMIP6-v2.py"
+        
         for anyo in range(int(anyoinibuscado),(int(anyofinbuscado)+1)):
-            os.system("python3 scriptDescargaDatosModelosCMIP6-v2.py "+modelo+" "+escenario+" "+varclim+" "+frecuencia+" "+str(anyo)+" "+str(lonmin)+" "+str(lonmax)+" "+str(latmin)+" "+str(latmax)+" "+nombrezona+" "+str(rutasalidas)+"")
-
+            try:
+                resultado = subprocess.run([
+                    sys.executable, str(script_v2),
+                    modelo, escenario, varclim, frecuencia, str(anyo),
+                    str(lonmin), str(lonmax), str(latmin), str(latmax),
+                    nombrezona, str(rutasalidas)
+                ], check=True, capture_output=True, text=True)
+        
+                print(resultado.stdout)
+        
+            except subprocess.CalledProcessError as e:
+                print(f"--- ERROR al descargar el año {anyo} ---")
+                print(e.stdout)
+                print(e.stderr)
 #----FIN----
